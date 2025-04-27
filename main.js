@@ -1,27 +1,101 @@
 
-const ROCK = "rock";
-const PAPER = "paper";
-const SCISSOR = "scissor";
+const ROCK = "Rock";
+const PAPER = "Paper";
+const SCISSOR = "Scissor";
+const NUMBER_OF_ROUNDS = 5;
 
 let humanScore = 0;
 let computerScore = 0;
+let currentRoundNumber = 1;
 
-// playGame();
+// Show home page
+const main = document.querySelector('.main');
 
-function playGame(){
-    const NUMBER_OF_ROUNDS = 5;
-    
-    for(let i=0; i<NUMBER_OF_ROUNDS; ++i){
-        const humanChoice = getHumanChoice();
-        const computerChoice = getComputerChoice();
-        playRound(humanChoice, computerChoice);
-    }
+showHomeScreen();
 
-    console.log(getGameOverMessage());
+function showHomeScreen(){
+    main.textContent = '';
+    const startBtn = document.createElement('button');
+    startBtn.textContent = "Play Game";
+    startBtn.classList.add('start-btn');
+    startBtn.addEventListener('click', playGame);
+    main.appendChild(startBtn);
 }
 
 
+//GamePlay screen
+
+function showGamePlayScreen(){
+    main.textContent = '';
+    showChoiceBtnList();
+    showScoreBoard();
+    showRoundMessageScreen();
+    showHomeBtn();
+}
+
+function showChoiceBtnList(){
+    const choiceArr = ['Rock', 'Paper', 'Scissor'];
+    const choiceListContainer = document.createElement('div');
+    for(let i=0; i<choiceArr.length; ++i){
+        const choiceBtn = document.createElement('button');
+        choiceBtn.textContent = choiceArr[i];
+        choiceBtn.addEventListener('click', (e) => {
+            const playerChoice = e.target.textContent;
+            playRound(playerChoice, getComputerChoice());
+        });
+        choiceListContainer.appendChild(choiceBtn);
+    }
+
+    main.appendChild(choiceListContainer);
+}
+
+function showScoreBoard(){
+    const scoreBoardTitle = document.createElement('h2');
+    scoreBoardTitle.textContent = 'Human - Computer';
+    const scoreBoard = document.createElement('p');
+    scoreBoard.classList.add('scoreboard');
+    main.appendChild(scoreBoardTitle);
+    main.appendChild(scoreBoard);
+}
+
+function showHomeBtn(){
+    const homeBtn = document.createElement('button');
+    homeBtn.textContent = 'Home';
+    homeBtn.addEventListener('click', showHomeScreen);
+    main.appendChild(homeBtn);
+}
+
+function playGame(){
+    humanScore = 0;
+    computerScore = 0;
+    currentRoundNumber = 1;
+    showGamePlayScreen();
+    updateScoreBoard();
+}
+
+function isGameOver(){
+    return currentRoundNumber > NUMBER_OF_ROUNDS;
+}
+
+function showGameOverScreen(){
+    main.textContent = '';
+    const gameOverMessageContainer = document.createElement('p');
+    gameOverMessageContainer.textContent = getGameOverMessage();
+    main.appendChild(gameOverMessageContainer);
+    showHomeBtn();
+}
+
+function updateScoreBoard(){
+    const scoreBoard = document.querySelector('.scoreboard');
+    scoreBoard.textContent = `${humanScore} - ${computerScore}`;
+}
+
 function playRound(humanChoice, computerChoice){
+    if(isGameOver()){
+        showGameOverScreen();
+        return;
+    }
+
     let message = "";
     
     if(humanChoice === computerChoice){
@@ -39,7 +113,20 @@ function playRound(humanChoice, computerChoice){
         message = `You lose! ${computerChoice} beats ${humanChoice}`;
     }
 
-    console.log(message);
+    currentRoundNumber++;
+    updateScoreBoard();
+    updateRoundMessage(message);
+}
+
+function showRoundMessageScreen(){
+    const messageContainer = document.createElement('p');
+    messageContainer.classList.add('round-message');
+    main.appendChild(messageContainer); 
+}
+
+function updateRoundMessage(message){
+    const messageScreen = document.querySelector('.round-message');
+    messageScreen.textContent = message;
 }
 
 function getComputerChoice(){
@@ -47,14 +134,6 @@ function getComputerChoice(){
     if(randomVal === 0) return ROCK;
     if(randomVal === 1) return PAPER;
     return SCISSOR;
-}
-
-function getHumanChoice(){
-    let choice = prompt("Enter your choice");
-    if(choice === null) return;
-    choice = choice.toLowerCase();
-    if(choice !== ROCK && choice !== PAPER && choice != SCISSOR) return;
-    return choice;
 }
 
 function getGameOverMessage(){
